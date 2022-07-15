@@ -1,9 +1,10 @@
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from applications.account.serializers import RegisterSerializer, LoginSerializer
+from applications.account.serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer
 
 User = get_user_model()
 
@@ -31,3 +32,15 @@ class ActivationView(APIView):
 
 class LoginApiView(ObtainAuthToken):
     serializer_class = LoginSerializer
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializers = ChangePasswordSerializer(data=request.data,
+                                               context={'request': request})
+
+        serializers.is_valid(raise_exception=True)
+        serializers.set_new_password()
+        return Response('Пароль успешно обновлен!')
