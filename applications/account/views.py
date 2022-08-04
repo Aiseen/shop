@@ -5,7 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from applications.account.serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer
+from applications.account.serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer, \
+    ForgotPasswordSerializer, ForgotPasswordCompleteSerializer
 
 User = get_user_model()
 
@@ -52,8 +53,26 @@ class LogOutApiView(APIView):
 
     def post(self,request):
         try:
-            user = request.user
+            user=request.user
             Token,object.filter(user=user).delete()
-            return Response('вы успешно разлогинились')
+            return Response('Вы успешно разлогинились')
         except:
             return Response(status = 403)
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ForgotPasswordSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.send_code()
+        return Response('Вам отправлено письмо для восстановления пароля')
+
+
+class ForgotPasswordComplete(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ForgotPasswordCompleteSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.set_new_pass()
+        return Response('Пароль успешно обновлен!')

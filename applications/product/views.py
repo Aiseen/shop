@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet, ModelViewSet
 
+from applications.account.serializers import ForgotPasswordCompleteSerializer
 from applications.product.models import Category, Product, Like, Rating, Comment
 from applications.product.permissions import CustomIsAdmin
 from applications.product.serializers import CategorySerializer, ProductSerializer, RatingSerializer, CommentSerializer
@@ -73,7 +74,7 @@ class ProductView(ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            permissions = []
+            permissions = [IsAuthenticated]
         elif self.action == 'like' or self.action == 'rating':
             permissions = [IsAuthenticated]
         else:
@@ -90,7 +91,6 @@ class CommentView(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-
 
 
 
